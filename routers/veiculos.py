@@ -51,3 +51,19 @@ def listar(marca: str | None = None, db: Session = Depends(get_db)):
 @router.get("/{id}", response_model=VeiculoResposta)
 def consultar(id: int, db: Session = Depends(get_db)):
     return buscar_veiculo(id, db)
+
+
+@router.put("/{id}", response_model=VeiculoResposta)
+def atualizar(id: int, dados: VeiculoEntrada, db: Session = Depends(get_db)):
+    veiculo = buscar_veiculo(id, db)
+    for campo, valor in dados.model_dump().items():
+        setattr(veiculo, campo, valor)
+    return salvar(db, veiculo)
+
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def excluir(id: int, db: Session = Depends(get_db)):
+    veiculo = buscar_veiculo(id, db)
+    db.delete(veiculo)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
